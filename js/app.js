@@ -1,4 +1,6 @@
 'use strict';
+let maxAttempts = 25;
+let chart = null;
 const img = ['bag','banana','bathroom','boots','breakfast','bubblegum','chair','cthulhu','dog-duck','dragon','pen','pet-sweep','scissors','shark','sweep','tauntaun','unicorn','water-can','wine-glass'];
 
 const state={
@@ -64,5 +66,99 @@ function objRender() {
       call[i].views++;
     }
 }
+function clean(){
+    chart.destroy();
+}
+function handleClick() {
+    for(let i = 0; i < 3; i++){
+    const imgElement = document.getElementById(`opcion${i + 1}`);
+    imgElement.addEventListener('click', function() {
+        if(maxAttempts!=0){
+        maxAttempts--;
+        const imgName = imgElement.alt;
+        const index = img.indexOf(imgName)
+        state.totalProducts[index].vote++
+        state.totalProducts[index].renderVotes();
+        objRender();
+        clean();
+        renderChart();
+        }
+      });
+    } 
+}
+
+function renderChart(){
+    const ctx = document.getElementById('canvas').getContext('2d');
+    const selectedProducts = [];
+    const productNames = [];
+    const productViews = [];
+    for(let i =0;i<state.totalProducts.length;i++){
+        const product = state.totalProducts[i];
+        selectedProducts.push(product.vote);
+        productNames.push(product.name);
+        productViews.push(product.views);
+    }
+    chart = new Chart(ctx,{
+        type:'bar',
+        data:{
+            labels:productNames,
+            datasets:[
+                {
+                    label: '# de votos',
+                    data:selectedProducts,
+                    backgroundColor:[
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',
+                    ],
+                    borderColor:['rgba(255, 99, 132, 1)',
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(153, 102, 255, 1)',
+                            ],
+                    borderWidth:1
+                },
+                {
+                    label:'# de visualizaciones',
+                    data:productViews,
+                    backgroundColor:[
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',],
+                    borderColor:['rgba(255, 99, 132, 1)',
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(153, 102, 255, 1)',],
+                    borderWidth:1
+                },
+            ],
+        },
+        options: {
+            legend: {
+              display: false,
+            },
+            scales: {
+              xAxes: [{
+                ticks: {
+                  stepSize: 1,
+                },
+                gridLines: {
+                  display: false,
+                },
+              }]
+            }
+        }
+    });
+}
 objMaker();
 objRender();
+handleClick();
+renderChart();
+
+
